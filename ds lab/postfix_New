@@ -1,0 +1,66 @@
+#include <stdio.h>
+#define max 10
+
+int push(int[], int, int);
+int pop(int[], int*);
+int evaluatePostfix(char[]);
+
+int evaluatePostfix(char postfix[]) {
+    int stack[max];
+    int top = -1;
+    int i = 0, op1, op2, result;
+    char symb;
+
+    while (postfix[i] != '\0') {
+        symb = postfix[i];
+        if (symb >= '0' && symb <= '9') {
+            // Convert char to int and push onto the stack
+            top = push(stack, top, symb - '0');
+        } else if (symb == '+' || symb == '-' || symb == '*' || symb == '/') {
+            top = pop(stack, &top);
+            op2 = stack[top + 1];  // Get the second operand
+            top = pop(stack, &top);
+            op1 = stack[top + 1];  // Get the first operand
+
+            if (symb == '+')
+                result = op1 + op2;
+            else if (symb == '-')
+                result = op1 - op2;
+            else if (symb == '*')
+                result = op1 * op2;
+            else if (symb == '/')
+                result = op1 / op2;
+
+            top = push(stack, top, result);  // Push result back to stack
+        }
+        i++;
+    }
+    return pop(stack, &top);  // Final result
+}
+
+int push(int s[max], int t, int ele) {
+    if (t == max - 1) {
+        printf("Stack is full\n");
+    } else {
+        s[++t] = ele;  // Increment top and push element
+    }
+    return t;
+}
+
+int pop(int s[max], int *top) {
+    if (*top == -1) {
+        printf("Stack is empty\n");
+        return -1;  // Indicate error
+    } else {
+        return s[(*top)--];  // Return element and decrement top
+    }
+}
+
+int main() {
+    char postfix[25];
+    printf("Enter the postfix expression: ");
+    scanf("%s", postfix);
+    int result = evaluatePostfix(postfix);
+    printf("The result of postfix expression %s is: %d\n", postfix, result);
+    return 0;
+}
