@@ -1,0 +1,157 @@
+//Prpgram to insert and delete a node from specific position.
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the structure for a node
+typedef struct NODE {
+    int info;
+    struct NODE* link;
+} NODE;
+
+// Function declarations
+NODE* insert_at_position(NODE* first, int ele, int pos);
+NODE* delete_at_position(NODE* first, int pos);
+void display(NODE* first);
+int count_nodes(NODE* first);
+
+int main() {
+    int ch, ele, pos;
+    NODE* first = NULL;
+
+    for(;;) {
+        printf("\n1. Insert at position\n2. Delete at position\n3. Display\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &ch);
+        
+        switch (ch) {
+            case 1:
+                printf("Enter element to insert: ");
+                scanf("%d", &ele);
+                printf("Enter position: ");
+                scanf("%d", &pos);
+                first = insert_at_position(first, ele, pos);
+                break;
+            case 2:
+                printf("Enter position to delete: ");
+                scanf("%d", &pos);
+                first = delete_at_position(first, pos);
+                break;
+            case 3:
+                display(first);
+                break;
+            case 4:
+                return 0;
+            default:
+                printf("Invalid choice!!\n");
+        }
+    }
+
+    return 0;
+}
+
+// Insert at a specific position with additional validation
+NODE* insert_at_position(NODE* first, int ele, int pos) {
+    NODE* new = (NODE*)malloc(sizeof(NODE));
+    new->info = ele;
+    new->link = NULL;
+
+    int total_nodes = count_nodes(first);
+
+    // If position is greater than available nodes, prompt user
+    if (pos > total_nodes + 1) {
+        printf("Position is greater than the number of nodes in the list. Total nodes available: %d\n", total_nodes);
+        printf("Do you want to insert at the end (position %d)? (1 for Yes, 0 for No): ", total_nodes + 1);
+        int choice;
+        scanf("%d", &choice);
+        if (choice == 1) {
+            pos = total_nodes + 1; // Insert at the end
+        } else {
+            printf("No node added.\n");
+            free(new); // Free the memory allocated for the new node
+            return first;
+        }
+    }
+
+    if (pos == 1) { // Insert at the beginning
+        new->link = first; 
+        first = new;
+        return first;
+    }
+
+    NODE* temp = first;
+    int i;
+    for (i = 1; i < pos - 1 && temp != NULL; i++) {
+        temp = temp->link;
+    }
+
+    if (temp == NULL) {
+        printf("Invalid position!\n");
+        free(new);
+    } else {
+        new->link = temp->link;
+        temp->link = new;
+    }
+
+    return first;
+}
+
+// Delete at a specific position
+NODE* delete_at_position(NODE* first, int pos) {
+    if (first == NULL) {
+        printf("List is empty!\n");
+        return first;
+    }
+
+    NODE* temp = first;
+
+    if (pos == 1) { // Delete the first node
+        first = first->link;
+        printf("Deleted element: %d\n", temp->info);
+        free(temp);
+        return first;
+    }
+
+    NODE* prev = NULL;
+    int i;
+    for (i = 1; i < pos && temp != NULL; i++) {
+        prev = temp;
+        temp = temp->link;
+    }
+
+    if (temp == NULL) {
+        printf("Invalid position!\n");
+    } else {
+        prev->link = temp->link;
+        printf("Deleted element: %d\n", temp->info);
+        free(temp);
+    }
+
+    return first;
+}
+
+// Display the elements of the linked list
+void display(NODE* first) {
+    if (first == NULL) {
+        printf("List is empty!\n");
+        return;
+    }
+
+    NODE* temp = first;
+    printf("Linked List: ");
+    while (temp != NULL) {
+        printf("%d -> ", temp->info);
+        temp = temp->link;
+    }
+    printf("NULL\n");
+}
+
+// Count the number of nodes in the list
+int count_nodes(NODE* first) {
+    int count = 0;
+    NODE* temp = first;
+    while (temp != NULL) {
+        count++;
+        temp = temp->link;
+    }
+    return count;
+}
